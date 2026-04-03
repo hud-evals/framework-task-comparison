@@ -41,9 +41,8 @@ LINEAR_EXAMPLE = OrdersIncidentTaskSpec(
         "Once fixed:\n"
         "1. Commit your changes to a new branch\n"
         "2. Push the branch to origin\n"
-        "3. Create a pull request using the GitHub tools\n"
-        "4. Leave a comment on the Linear issue summarizing the diagnosis and fix\n"
-        "5. Mark the Linear issue as Done\n"
+        "3. Leave a comment on the Linear issue summarizing the diagnosis and fix\n"
+        "4. Mark the Linear issue as Done\n"
     ),
     repo_owner="acme-corp",
     repo_name="orders-api",

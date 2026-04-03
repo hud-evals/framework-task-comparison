@@ -5,7 +5,7 @@ This `hud/` directory contains the HUD implementation of the shared orders incid
 ## What it does
 
 - exposes mock Linear tools backed by fixture JSON
-- exposes mock GitHub issue and PR tools backed by fixture JSON plus a local bare git repo
+- exposes mock GitHub tools backed by fixture JSON plus a local bare git repo
 - copies vendored `orders-api` source into the runtime workspace
 - grades with a hidden pricing test plus GitHub/Linear workflow checks
 

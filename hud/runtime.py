@@ -117,13 +117,6 @@ class OrdersIncidentRuntime:
         self._write_hidden_test_file(task, grading_dir)
 
         test_score, test_meta = self._run_hidden_tests(task, grading_dir)
-        pull_requests = await self.github_service.client.list_pull_requests(
-            task.repo_owner,
-            task.repo_name,
-            state="all",
-            per_page=50,
-            page=1,
-        )
         issue = self.linear_service.data.get_issue(task.linear_issue)
         issue_state = (issue or {}).get("state") or {}
         created_comments = (
@@ -133,7 +126,7 @@ class OrdersIncidentRuntime:
         subscores = [
             SubScore(
                 name="tests_pass",
-                weight=0.7,
+                weight=0.8,
                 value=test_score,
                 metadata=test_meta,
             ),
@@ -142,12 +135,6 @@ class OrdersIncidentRuntime:
                 weight=0.1,
                 value=1.0 if pushes else 0.0,
                 metadata={"pushes": pushes},
-            ),
-            SubScore(
-                name="pull_request_created",
-                weight=0.1,
-                value=1.0 if pull_requests else 0.0,
-                metadata={"pull_request_numbers": [pr.get("number") for pr in pull_requests]},
             ),
             SubScore(
                 name="linear_workflow_complete",
@@ -165,7 +152,7 @@ class OrdersIncidentRuntime:
             reward=reward,
             done=True,
             content=(
-                "Tests, git push/PR workflow, and Linear issue actions were checked "
+                "Tests, git push workflow, and Linear issue actions were checked "
                 "against the local mock services."
             ),
             subscores=subscores,

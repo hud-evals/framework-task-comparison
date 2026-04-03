@@ -23,7 +23,7 @@
       {
         "id": 201,
         "user": {"login": "alex-dev", "id": 101},
-        "body": "I moved the tax step ahead of discount in `calculate_order_total()` so we can support the tax-inclusive case without splitting the pipeline in two.\n\nFor `TAX_INCLUSIVE=False` I believe the behavior is effectively unchanged, since we're still using the same subtotal and the default production path is tax-exclusive.\n\nPR is up if anyone wants to sanity check the math.",
+        "body": "I moved the tax step ahead of discount in `calculate_order_total()` so we can support the tax-inclusive case without splitting the pipeline in two.\n\nFor `TAX_INCLUSIVE=False` I believe the behavior is effectively unchanged, since we're still using the same subtotal and the default production path is tax-exclusive.\n\nThe math probably needs a closer sanity check before this goes any further.",
         "created_at": "2025-11-08T14:23:00Z",
         "updated_at": "2025-11-08T14:23:00Z"
       },
