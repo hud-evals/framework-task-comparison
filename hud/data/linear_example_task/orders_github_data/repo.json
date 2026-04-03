@@ -1,0 +1,11 @@
+{
+  "id": 3,
+  "name": "orders-api",
+  "full_name": "acme-corp/orders-api",
+  "description": "E-commerce order processing API",
+  "default_branch": "order_bug_baseline",
+  "private": true,
+  "html_url": "https://github.com/acme-corp/orders-api",
+  "language": "Python",
+  "topics": ["api", "python", "ecommerce", "orders"]
+}

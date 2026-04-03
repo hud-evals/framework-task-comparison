@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{title}} — Linear</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo"><span>&#9670;</span> Linear <span style="font-weight:400;color:#6b6f76;font-size:12px">mock</span></div>
+  <div class="section">
+    <a href="/"{{dashboard_cls}}><span class="icon">&#8962;</span> Dashboard</a>
+    <a href="/issues"{{issues_cls}}><span class="icon">&#9679;</span> Issues</a>
+    <a href="/projects"{{projects_cls}}><span class="icon">&#9651;</span> Projects</a>
+  </div>
+</div>
+<div class="main">{{content}}</div>
+</body>
+</html>

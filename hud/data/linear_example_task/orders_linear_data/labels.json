@@ -1,0 +1,20 @@
+[
+  {
+    "id": "label-001",
+    "name": "Bug",
+    "color": "#eb5757",
+    "teamId": "team-001"
+  },
+  {
+    "id": "label-002",
+    "name": "P1",
+    "color": "#f2994a",
+    "teamId": "team-001"
+  },
+  {
+    "id": "label-003",
+    "name": "Pricing",
+    "color": "#27ae60",
+    "teamId": "team-001"
+  }
+]

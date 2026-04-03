@@ -1,0 +1,37 @@
+[
+  {
+    "id": "issue-450",
+    "identifier": "ENG-450",
+    "number": 450,
+    "title": "Checkout totals off for discounted orders after overnight deploy",
+    "description": "## Summary\n\nSupport flagged this first thing this morning after a deploy went out around 2:47 AM. We are seeing bad totals in the orders API, but only on carts with discounts applied.\n\n### What people are seeing\n\n- Discounted orders are coming out a little high\n- Some percentage discounts are off by a cent\n- Orders without a promo code still look normal\n\n### Example from support\n\n- 2x Widget at $25.00 = $50.00 subtotal\n- Promo code: SAVE10\n- Tax: 8%\n- Expected total: $48.60\n- Actual total: $49.14\n\nWe have a couple of similar reports where percentage discounts on values like $49.99 round down to $4.99 instead of $5.00.\n\n### Notes so far\n\n- Discount config looks fine\n- Tax config looks fine\n- This seems to have started with last night's deploy\n- The pricing flow changed recently as part of the regional pricing work in GitHub issue #12\n- GitHub issues #15 and #18 have notes from earlier debugging\n\n### Impact\n\nCustomers are being overcharged, support is issuing refunds manually, and we should assume this is customer-visible until proven otherwise.\n\n### Done when\n\n- Discounted totals line up with the expected math\n- Percentage and flat discounts both behave correctly\n- Root cause is fixed and a PR is up",
+    "priority": 1,
+    "priorityLabel": "Urgent",
+    "state": {
+      "id": "state-003",
+      "name": "In Progress",
+      "type": "started"
+    },
+    "assignee": {
+      "id": "user-001",
+      "name": "Agent Bot",
+      "displayName": "Agent"
+    },
+    "team": {
+      "id": "team-001",
+      "name": "Engineering",
+      "key": "ENG"
+    },
+    "labels": [
+      {"id": "label-001", "name": "Bug", "color": "#eb5757"},
+      {"id": "label-002", "name": "P1", "color": "#f2994a"},
+      {"id": "label-003", "name": "Pricing", "color": "#27ae60"}
+    ],
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedAt": "2026-02-12T14:30:00Z",
+    "startedAt": "2026-02-12T14:30:00Z",
+    "completedAt": null,
+    "canceledAt": null,
+    "url": "https://linear.app/acme-corp/issue/ENG-450"
+  }
+]

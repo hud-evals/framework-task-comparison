@@ -1,0 +1,9 @@
+[
+  {
+    "id": "user-001",
+    "name": "Agent Bot",
+    "email": "agent@example.com",
+    "displayName": "Agent",
+    "active": true
+  }
+]

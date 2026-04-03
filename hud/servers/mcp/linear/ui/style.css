@@ -1,0 +1,119 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #e8eaed; background: #1f2023; line-height: 1.5;
+  display: flex; min-height: 100vh;
+}
+a { color: #8b8fff; text-decoration: none; }
+a:hover { color: #b0b3ff; }
+
+/* vertical sidebar */
+.sidebar {
+  width: 220px; background: #16171a; border-right: 1px solid #2a2b2f;
+  padding: 16px 0; flex-shrink: 0; position: fixed; top: 0; left: 0;
+  bottom: 0; overflow-y: auto;
+}
+.sidebar .logo {
+  padding: 8px 20px 20px; font-size: 15px; font-weight: 600;
+  color: #fff; letter-spacing: -0.3px;
+}
+.sidebar .logo span { color: #5e6ad2; }
+.sidebar .section { padding: 0 12px; margin-bottom: 16px; }
+.sidebar .section-title {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: #6b6f76; padding: 4px 8px; margin-bottom: 2px;
+}
+.sidebar a {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+  border-radius: 5px; color: #9ca0ab; font-size: 13px; transition: background 0.1s;
+}
+.sidebar a:hover { background: #25262b; color: #e8eaed; text-decoration: none; }
+.sidebar a.active { background: #25262b; color: #fff; }
+.sidebar .icon { width: 16px; text-align: center; font-size: 14px; }
+
+/* main content */
+.main { margin-left: 220px; flex: 1; padding: 28px 32px; min-width: 0; }
+h1 { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #fff; }
+h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #e8eaed; }
+
+/* tables */
+table {
+  width: 100%; border-collapse: collapse; background: #1a1b1e;
+  border: 1px solid #2a2b2f; border-radius: 6px; font-size: 13px;
+  overflow: hidden;
+}
+th {
+  text-align: left; padding: 10px 14px; background: #16171a;
+  border-bottom: 1px solid #2a2b2f; font-weight: 500; color: #6b6f76;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;
+}
+td { padding: 10px 14px; border-bottom: 1px solid #222326; }
+tr:last-child td { border-bottom: none; }
+tr.clickable { cursor: pointer; }
+tr.clickable:hover td { background: #222326; }
+td a { color: #e8eaed; }
+td a:hover { color: #8b8fff; }
+
+/* status dot + priority badge */
+.dot {
+  display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+  margin-right: 6px; vertical-align: middle; border: 1.5px solid rgba(255,255,255,0.15);
+}
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-weight: 500; color: #fff;
+}
+
+/* detail card */
+.detail {
+  background: #1a1b1e; border: 1px solid #2a2b2f; border-radius: 6px;
+  padding: 20px 24px; margin-bottom: 20px;
+}
+.meta { color: #6b6f76; font-size: 13px; margin-bottom: 8px; }
+.meta-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 12px; }
+.meta-item { display: flex; align-items: center; gap: 6px; }
+.meta-label { color: #6b6f76; font-size: 12px; }
+.meta-value { color: #e8eaed; font-size: 13px; }
+.description {
+  margin-top: 16px; white-space: pre-wrap; color: #b0b3b8;
+  font-size: 14px; line-height: 1.65;
+}
+
+/* comments */
+.comment { border-top: 1px solid #2a2b2f; padding-top: 14px; margin-top: 14px; }
+.comment-author { font-weight: 600; font-size: 13px; color: #e8eaed; }
+.comment-date { color: #6b6f76; font-size: 12px; margin-left: 8px; }
+.comment-body {
+  margin-top: 6px; white-space: pre-wrap; font-size: 13px;
+  color: #b0b3b8; line-height: 1.6;
+}
+
+/* labels */
+.label {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; margin-right: 4px; margin-top: 8px;
+  border: 1px solid #3a3b40; color: #b0b3b8; background: #25262b;
+}
+.labels-row { margin-top: 4px; }
+
+/* dashboard cards */
+.counts {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px; margin-bottom: 24px;
+}
+.count-card {
+  background: #1a1b1e; border: 1px solid #2a2b2f; border-radius: 6px;
+  padding: 20px;
+}
+.count-card .num { font-size: 32px; font-weight: 600; color: #fff; }
+.count-card .lbl { color: #6b6f76; font-size: 13px; margin-top: 2px; }
+.count-card a.card-link { display: block; color: inherit; text-decoration: none; }
+.count-card a.card-link:hover { text-decoration: none; }
+.count-card:has(a.card-link):hover { background: #222326; border-color: #3a3b40; cursor: pointer; }
+
+/* progress bar */
+.progress-bar {
+  width: 60px; height: 6px; background: #2a2b2f; border-radius: 3px;
+  display: inline-block; vertical-align: middle; margin-right: 6px;
+}
+.progress-fill { height: 100%; background: #5e6ad2; border-radius: 3px; }
