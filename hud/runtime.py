@@ -112,7 +112,8 @@ class OrdersIncidentRuntime:
         self._run(f"git clone {self._quote(bare_repo)} {self._quote(grading_dir)}")
 
         grading_branch = self._select_grading_branch(task, pushes)
-        self._run(f"git -C {self._quote(grading_dir)} checkout {grading_branch}")
+        grading_commit = self._resolve_grading_commit(task, pushes)
+        self._run(f"git -C {self._quote(grading_dir)} checkout {grading_commit}")
         self._write_hidden_test_file(task, grading_dir)
 
         test_score, test_meta = self._run_hidden_tests(task, grading_dir)
@@ -170,6 +171,7 @@ class OrdersIncidentRuntime:
             subscores=subscores,
             info={
                 "grading_branch": grading_branch,
+                "grading_commit": grading_commit,
                 "workspace": str(self.workspace(task)),
                 "source_directory": str(self.source_dir(task)),
                 "agent_answer_preview": str(answer)[:500] if answer is not None else "",
@@ -282,6 +284,20 @@ class OrdersIncidentRuntime:
         if pushes:
             return pushes[-1]["branch"]
         return task.baseline_branch
+
+    def _resolve_grading_commit(
+        self,
+        task: OrdersIncidentTaskSpec,
+        pushes: list[dict[str, str]],
+    ) -> str:
+        if pushes:
+            return pushes[-1]["new_sha"]
+
+        result = self._run(
+            f"git -C {self._quote(self.bare_repo(task))} "
+            f"rev-parse refs/heads/{task.baseline_branch}"
+        )
+        return result.stdout.strip()
 
     def _run_hidden_tests(
         self,
