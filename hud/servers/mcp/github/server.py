@@ -26,12 +26,11 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from fastmcp import FastMCP
 
-from servers.constants import MAX_RESPONSE_LEN
-
 if TYPE_CHECKING:
     from .mock_client import MockGitHubClient
 
 ClientResolver = Callable[[str, str], "MockGitHubClient"]
+MAX_RESPONSE_LEN = 1_000_000
 
 # ---------------------------------------------------------------------------
 # Official tool descriptions (from @modelcontextprotocol/server-github)
