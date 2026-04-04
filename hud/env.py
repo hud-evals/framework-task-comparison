@@ -66,145 +66,131 @@ def _detect_pushes(bare_repo: Path, initial_refs: dict[str, str]) -> list[dict[s
     return pushes
 
 
-class OrdersIncidentRuntime:
-    def __init__(self) -> None:
-        in_docker = Path("/.dockerenv").exists()
-        runtime_root = Path("/home/ubuntu" if in_docker else ROOT_DIR / ".runtime" / "dev")
-        self.workspace = runtime_root / "workspace" / "orders_api"
-        self.bare_repo = runtime_root / "git" / "orders-api.git"
-        self.grading_dir = runtime_root / "grading" / "orders_api"
-        self.chown_workspace = in_docker
-        self.linear = LinearService()
-        self.initial_refs: dict[str, str] = {}
+IN_DOCKER = Path("/.dockerenv").exists()
+RUNTIME_ROOT = Path("/home/ubuntu" if IN_DOCKER else ROOT_DIR / ".runtime" / "dev")
+WORKSPACE = RUNTIME_ROOT / "workspace" / "orders_api"
+BARE_REPO = RUNTIME_ROOT / "git" / "orders-api.git"
+GRADING_DIR = RUNTIME_ROOT / "grading" / "orders_api"
+LINEAR = LinearService()
+INITIAL_REFS: dict[str, str] = {}
 
-    def attach(self, env: Environment) -> None:
-        env.add_tool(BashTool())
-        env.add_tool(EditTool())
-        env.add_tool(ReadTool(base_path=str(self.workspace)))
-        env.add_tool(GrepTool(base_path=str(self.workspace)))
-        env.add_tool(GlobTool(base_path=str(self.workspace)))
-        env.add_tool(ListTool(base_path=str(self.workspace)))
-        env.connect_server(self.linear.server, prefix="linear")
 
-    async def setup(self) -> str:
-        for path in [self.workspace, self.bare_repo, self.grading_dir]:
-            shutil.rmtree(path, ignore_errors=True)
-            path.parent.mkdir(parents=True, exist_ok=True)
+def attach(env: Environment) -> None:
+    env.add_tool(BashTool())
+    env.add_tool(EditTool())
+    env.add_tool(ReadTool(base_path=str(WORKSPACE)))
+    env.add_tool(GrepTool(base_path=str(WORKSPACE)))
+    env.add_tool(GlobTool(base_path=str(WORKSPACE)))
+    env.add_tool(ListTool(base_path=str(WORKSPACE)))
+    env.connect_server(LINEAR.server, prefix="linear")
 
-        shutil.copytree(ROOT_DIR / "source" / "orders_api", self.workspace)
-        self._git(self.workspace, "init")
-        self._git(self.workspace, "checkout", "-b", "order_bug_baseline")
-        self._git(self.workspace, "config", "user.name", "Agent Bot")
-        self._git(self.workspace, "config", "user.email", "agent@example.com")
-        self._git(self.workspace, "add", ".")
-        self._git(self.workspace, "commit", "-m", "Seed orders-api baseline")
-        self._run(["git", "clone", "--bare", str(self.workspace), str(self.bare_repo)])
-        self.initial_refs = _snapshot_refs(self.bare_repo)
-        self._git(self.workspace, "remote", "add", "origin", str(self.bare_repo))
-        self.linear.configure(data_dir=str(ROOT_DIR / "linear_data"))
 
-        if self.chown_workspace:
-            subprocess.run(["chown", "-R", "1000:1000", str(self.workspace.parent)], check=False)
+async def setup() -> str:
+    for path in [WORKSPACE, BARE_REPO, GRADING_DIR]:
+        shutil.rmtree(path, ignore_errors=True)
+        path.parent.mkdir(parents=True, exist_ok=True)
 
-        return PROMPT.format(workspace=self.workspace)
+    shutil.copytree(ROOT_DIR / "source" / "orders_api", WORKSPACE)
+    subprocess.run(["git", "init"], cwd=WORKSPACE, check=True)
+    subprocess.run(["git", "checkout", "-b", "order_bug_baseline"], cwd=WORKSPACE, check=True)
+    subprocess.run(["git", "config", "user.name", "Agent Bot"], cwd=WORKSPACE, check=True)
+    subprocess.run(["git", "config", "user.email", "agent@example.com"], cwd=WORKSPACE, check=True)
+    subprocess.run(["git", "add", "."], cwd=WORKSPACE, check=True)
+    subprocess.run(["git", "commit", "-m", "Seed orders-api baseline"], cwd=WORKSPACE, check=True)
+    subprocess.run(["git", "clone", "--bare", str(WORKSPACE), str(BARE_REPO)], check=True)
+    INITIAL_REFS.clear()
+    INITIAL_REFS.update(_snapshot_refs(BARE_REPO))
+    subprocess.run(["git", "remote", "add", "origin", str(BARE_REPO)], cwd=WORKSPACE, check=True)
+    LINEAR.configure(data_dir=str(ROOT_DIR / "linear_data"))
 
-    async def grade(self, answer: Any) -> EvaluationResult:
-        pushes = _detect_pushes(self.bare_repo, self.initial_refs)
+    if IN_DOCKER:
+        subprocess.run(["chown", "-R", "1000:1000", str(WORKSPACE.parent)], check=False)
 
-        shutil.rmtree(self.grading_dir, ignore_errors=True)
-        self._run(["git", "clone", str(self.bare_repo), str(self.grading_dir)])
+    return PROMPT.format(workspace=WORKSPACE)
 
-        grading_branch = pushes[-1]["branch"] if pushes else "order_bug_baseline"
-        grading_commit = pushes[-1]["new_sha"] if pushes else self._git(
-            self.bare_repo, "rev-parse", "refs/heads/order_bug_baseline"
-        ).stdout.strip()
 
-        self._git(self.grading_dir, "checkout", grading_commit)
-        (self.grading_dir / "test_order_pricing.py").write_text(
-            (ROOT_DIR / "source" / "tests" / "test_order_pricing.py").read_text(encoding="utf-8"),
-            encoding="utf-8",
-        )
+async def grade(answer: Any) -> EvaluationResult:
+    pushes = _detect_pushes(BARE_REPO, INITIAL_REFS)
 
-        test_result = self._run(
-            ["python", "-m", "pytest", "test_order_pricing.py", "-v"],
-            cwd=self.grading_dir,
-            check=False,
-        )
-        issue = self.linear.data.get_issue("ENG-450")
-        issue_state = (issue or {}).get("state") or {}
-        comments = (getattr(self.linear.data, "_created_comments", {}) or {}).get("issue-450", [])
+    shutil.rmtree(GRADING_DIR, ignore_errors=True)
+    subprocess.run(["git", "clone", str(BARE_REPO), str(GRADING_DIR)], check=True)
 
-        subscores = [
-            SubScore(
-                name="tests_pass",
-                weight=0.8,
-                value=1.0 if test_result.returncode == 0 else 0.0,
-                metadata={
-                    "exit_code": test_result.returncode,
-                    "stdout": test_result.stdout[-4000:],
-                    "stderr": test_result.stderr[-4000:],
-                },
-            ),
-            SubScore(
-                name="branch_pushed",
-                weight=0.1,
-                value=1.0 if pushes else 0.0,
-                metadata={"pushes": pushes},
-            ),
-            SubScore(
-                name="linear_workflow_complete",
-                weight=0.1,
-                value=1.0 if issue_state.get("type") == "completed" and comments else 0.0,
-                metadata={
-                    "linear_state": issue_state,
-                    "created_comment_count": len(comments),
-                },
-            ),
-        ]
+    grading_branch = pushes[-1]["branch"] if pushes else "order_bug_baseline"
+    grading_commit = pushes[-1]["new_sha"] if pushes else subprocess.run(
+        ["git", "rev-parse", "refs/heads/order_bug_baseline"],
+        cwd=BARE_REPO,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
 
-        return EvaluationResult(
-            reward=sum(score.weight * score.value for score in subscores),
-            done=True,
-            content="Checked the hidden test, git push, and Linear workflow against the local sandbox.",
-            subscores=subscores,
-            info={
-                "grading_branch": grading_branch,
-                "grading_commit": grading_commit,
-                "workspace": str(self.workspace),
-                "agent_answer_preview": str(answer)[:500] if answer is not None else "",
+    subprocess.run(["git", "checkout", grading_commit], cwd=GRADING_DIR, check=True)
+    (GRADING_DIR / "test_order_pricing.py").write_text(
+        (ROOT_DIR / "source" / "tests" / "test_order_pricing.py").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+
+    test_result = subprocess.run(
+        ["python", "-m", "pytest", "test_order_pricing.py", "-v"],
+        cwd=GRADING_DIR,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    issue = LINEAR.data.get_issue("ENG-450")
+    issue_state = (issue or {}).get("state") or {}
+    comments = (getattr(LINEAR.data, "_created_comments", {}) or {}).get("issue-450", [])
+
+    subscores = [
+        SubScore(
+            name="tests_pass",
+            weight=0.8,
+            value=1.0 if test_result.returncode == 0 else 0.0,
+            metadata={
+                "exit_code": test_result.returncode,
+                "stdout": test_result.stdout[-4000:],
+                "stderr": test_result.stderr[-4000:],
             },
-        )
+        ),
+        SubScore(
+            name="branch_pushed",
+            weight=0.1,
+            value=1.0 if pushes else 0.0,
+            metadata={"pushes": pushes},
+        ),
+        SubScore(
+            name="linear_workflow_complete",
+            weight=0.1,
+            value=1.0 if issue_state.get("type") == "completed" and comments else 0.0,
+            metadata={
+                "linear_state": issue_state,
+                "created_comment_count": len(comments),
+            },
+        ),
+    ]
 
-    def _git(
-        self,
-        cwd: Path,
-        *args: str,
-        check: bool = True,
-    ) -> subprocess.CompletedProcess[str]:
-        return self._run(["git", *args], cwd=cwd, check=check)
-
-    def _run(
-        self,
-        args: list[str],
-        *,
-        cwd: Path | None = None,
-        check: bool = True,
-    ) -> subprocess.CompletedProcess[str]:
-        result = subprocess.run(args, cwd=cwd, capture_output=True, text=True, check=False)
-        if result.returncode != 0 and check:
-            raise subprocess.CalledProcessError(result.returncode, args, result.stdout, result.stderr)
-        return result
+    return EvaluationResult(
+        reward=sum(score.weight * score.value for score in subscores),
+        done=True,
+        content="Checked the hidden test, git push, and Linear workflow against the local sandbox.",
+        subscores=subscores,
+        info={
+            "grading_branch": grading_branch,
+            "grading_commit": grading_commit,
+            "workspace": str(WORKSPACE),
+            "agent_answer_preview": str(answer)[:500] if answer is not None else "",
+        },
+    )
 
 
 env = Environment("orders-incident-hud")
-runtime = OrdersIncidentRuntime()
-runtime.attach(env)
+attach(env)
 
 
 @env.scenario("orders_incident")
 async def orders_incident():
-    answer = yield await runtime.setup()
-    yield await runtime.grade(answer)
+    answer = yield await setup()
+    yield await grade(answer)
 
 
 if __name__ == "__main__":
