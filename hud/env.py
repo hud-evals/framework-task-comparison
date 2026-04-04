@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import platform
 import shutil
 import subprocess
 from pathlib import Path
@@ -74,7 +73,7 @@ class OrdersIncidentRuntime:
         self.workspace = runtime_root / "workspace" / "orders_api"
         self.bare_repo = runtime_root / "git" / "orders-api.git"
         self.grading_dir = runtime_root / "grading" / "orders_api"
-        self.chown_workspace = in_docker and platform.system() == "Linux"
+        self.chown_workspace = in_docker
         self.linear = LinearService()
         self.initial_refs: dict[str, str] = {}
 
