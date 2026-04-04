@@ -1,0 +1,13 @@
+[project]
+name = "orders-incident-inspect"
+version = "0.1.0"
+description = "Minimal Inspect AI port of the HUD orders incident demo"
+requires-python = ">=3.12"
+dependencies = [
+    "inspect-ai",
+    "openai>=2.0.0",
+    "pytest>=9.0.2",
+]
+
+[tool.uv]
+package = false
