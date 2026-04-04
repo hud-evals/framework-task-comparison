@@ -7,7 +7,7 @@ query, filter, and mutation methods that match real Linear API behavior.
 No live Linear instance or API key is required.
 
 Typical usage:
-    from servers.mcp.linear import MockLinearData
+    from linear_mcp import MockLinearData
 
     data = MockLinearData(data_dir="linear_data/")
     data.load()
