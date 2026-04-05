@@ -1,0 +1,23 @@
+grading_branch=fix/ENG-450-checkout-totals
+grading_commit=58a0d999fdd70ad2319ee9f9ce1d9442e330fc31
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /tmp/grading/orders_api
+plugins: anyio-4.13.0
+collecting ... collected 5 items
+
+test_order_pricing.py::TestOrderPricing::test_basic_order_no_discount PASSED [ 20%]
+test_order_pricing.py::TestOrderPricing::test_percentage_discount_order_total PASSED [ 40%]
+test_order_pricing.py::TestOrderPricing::test_twenty_percent_discount PASSED [ 60%]
+test_order_pricing.py::TestOrderPricing::test_flat_discount PASSED       [ 80%]
+test_order_pricing.py::TestOrderPricing::test_multi_item_discounted_order PASSED [100%]
+
+============================== 5 passed in 0.01s ===============================
+
+{
+  "reward": 1.0,
+  "tests_pass": 1.0,
+  "branch_pushed": 1.0,
+  "linear_workflow_complete": 1.0
+}

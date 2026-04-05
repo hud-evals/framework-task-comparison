@@ -1,0 +1,37 @@
+Running command: if ldd --version 2>&1 | grep -qi musl || [ -f /etc/alpine-release ]; then  apk add --no-cache curl bash nodejs npm ripgrep; elif command -v apt-get &>/dev/null; then  apt-get update && apt-get install -y curl ripgrep; elif command -v yum &>/dev/null; then  yum install -y curl ripgrep; else  echo "Warning: No known package manager found, assuming curl is available" >&2; fi
+Command outputs captured
+Running command: set -euo pipefail; if ldd --version 2>&1 | grep -qi musl || [ -f /etc/alpine-release ]; then  npm install -g @openai/codex@latest; else  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.2/install.sh | bash &&  export NVM_DIR="$HOME/.nvm" &&  \. "$NVM_DIR/nvm.sh" || true &&  command -v nvm &>/dev/null || { echo 'Error: NVM failed to load' >&2; exit 1; } &&  nvm install 22 && nvm alias default 22 && npm -v &&  npm install -g @openai/codex@latest; fi && codex --version
+Command outputs captured
+Running command: for bin in node codex; do  BIN_PATH="$(which "$bin" 2>/dev/null || true)";  if [ -n "$BIN_PATH" ] && [ "$BIN_PATH" != "/usr/local/bin/$bin" ]; then    ln -sf "$BIN_PATH" "/usr/local/bin/$bin";  fi; done
+Command outputs captured
+Running command: 
+mkdir -p /tmp/codex-secrets
+cat >/tmp/codex-secrets/auth.json <<EOF
+{
+  "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+}
+EOF
+ln -sf /tmp/codex-secrets/auth.json "$CODEX_HOME/auth.json"
+                
+echo '[mcp_servers.linear]
+command = "python3 /app/linear_mcp/server.py"
+' > "$CODEX_HOME/config.toml"
+Command outputs captured
+Running command: if [ -s ~/.nvm/nvm.sh ]; then . ~/.nvm/nvm.sh; fi; codex exec --dangerously-bypass-approvals-and-sandbox --skip-git-repo-check --model gpt-5.2 --json --enable unified_exec -c model_reasoning_effort=high -- 'You have been assigned Linear issue ENG-450. Start in Linear and read the ticket details.
+
+The orders API source code is available locally at `/app/orders_api`. It is a Python FastAPI application.
+
+This looks like a production regression from last night'"'"'s deploy. Customers are reporting bad checkout totals, but the ticket has the best context on what is and is not broken. Use that context to diagnose the issue and fix the root cause.
+
+Use the Linear MCP tools available in the environment to inspect the issue and update its state.
+
+Once fixed:
+
+1. Commit your changes to a new branch
+2. Push the branch to origin
+3. Leave a comment on the Linear issue summarizing the diagnosis and fix
+4. Mark the Linear issue as Done
+' 2>&1 </dev/null | tee /logs/agent/codex.txt
+Command outputs captured
+Running command: rm -rf /tmp/codex-secrets "$CODEX_HOME/auth.json" "$CODEX_HOME/tmp"
+Command outputs captured
