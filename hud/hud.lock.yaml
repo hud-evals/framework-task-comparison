@@ -1,0 +1,1354 @@
+version: '1.3'
+images:
+  local: hud:0.1.0
+  full: hud:0.1.0@sha256:74be63bd6b60b6dcfcaec6caeff2ff9966b35a4c38b60fa59b4ae97797a99771
+  pushed: null
+build:
+  generatedAt: 2026-04-07T01:19:09.733276+00:00Z
+  hudVersion: 0.5.34
+  directory: hud
+  version: 0.1.0
+  sourceHash: a414a8e9561703df1221037710a7e99c026adf022a554188aa7e6183074326e9
+  baseImage: python:3.12-slim
+  platform: linux/amd64
+  sourceFiles:
+  - Dockerfile.hud
+  - pyproject.toml
+environment:
+  initializeMs: 4900
+  toolCount: 46
+  runtime:
+    python: 3.12.13
+    cuda: null
+    cudnn: null
+    pytorch: null
+  internalToolCount: 0
+tools:
+- name: bash
+  description: Execute bash commands in a persistent shell session
+  inputSchema:
+    additionalProperties: false
+    properties:
+      command:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+      restart:
+        default: false
+        type: boolean
+    type: object
+- name: edit
+  description: View, create, and edit files with undo support
+  inputSchema:
+    additionalProperties: false
+    properties:
+      command:
+        enum:
+        - view
+        - create
+        - str_replace
+        - insert
+        - undo_edit
+        type: string
+      path:
+        type: string
+      file_text:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+      view_range:
+        anyOf:
+        - items:
+            type: integer
+          type: array
+        - type: 'null'
+        default: null
+      old_str:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+      new_str:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+      insert_line:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+    required:
+    - command
+    - path
+    type: object
+- name: read
+  description: Reads a file from the local filesystem. The filePath parameter must
+    be an absolute path. By default reads up to 2000 lines. Use offset and limit for
+    pagination. Lines longer than 2000 chars are truncated.
+  inputSchema:
+    additionalProperties: false
+    properties:
+      filePath:
+        type: string
+      offset:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+      limit:
+        anyOf:
+        - type: integer
+        - type: 'null'
+        default: null
+    required:
+    - filePath
+    type: object
+- name: grep
+  description: Fast content search tool. Searches file contents using regular expressions.
+    Supports full regex syntax. Filter files by pattern with 'include' parameter.
+    Returns file paths and line numbers sorted by modification time.
+  inputSchema:
+    additionalProperties: false
+    properties:
+      pattern:
+        type: string
+      path:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+      include:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+    required:
+    - pattern
+    type: object
+- name: glob
+  description: Fast file pattern matching tool. Supports glob patterns like '**/*.js'
+    or 'src/**/*.ts'. Returns matching file paths sorted by modification time.
+  inputSchema:
+    additionalProperties: false
+    properties:
+      pattern:
+        type: string
+      path:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+    required:
+    - pattern
+    type: object
+- name: list
+  description: Lists files and directories in a given path. The path parameter must
+    be absolute; omit it to use the current workspace directory. You can optionally
+    provide an array of glob patterns to ignore.
+  inputSchema:
+    additionalProperties: false
+    properties:
+      path:
+        anyOf:
+        - type: string
+        - type: 'null'
+        default: null
+      ignore:
+        anyOf:
+        - items:
+            type: string
+          type: array
+        - type: 'null'
+        default: null
+    type: object
+- name: linear_get_attachment
+  description: Retrieve an attachment's content by ID.
+  inputSchema:
+    properties:
+      id:
+        type: string
+        description: Attachment ID
+    required:
+    - id
+    type: object
+- name: linear_create_attachment
+  description: Create a new attachment on a specific Linear issue by uploading base64-encoded
+    content.
+  inputSchema:
+    properties:
+      issue:
+        type: string
+        description: Issue ID or identifier (e.g., LIN-123)
+      base64Content:
+        type: string
+        description: Base64-encoded file content to upload
+      filename:
+        type: string
+        description: Filename for the upload (e.g., 'screenshot.png')
+      contentType:
+        type: string
+        description: MIME type for the upload (e.g., 'image/png', 'application/pdf')
+      subtitle:
+        type: string
+        description: Optional subtitle for the attachment
+      title:
+        type: string
+        description: Optional title for the attachment
+    required:
+    - issue
+    - base64Content
+    - filename
+    - contentType
+    type: object
+- name: linear_delete_attachment
+  description: Delete an attachment by ID
+  inputSchema:
+    properties:
+      id:
+        type: string
+        description: Attachment ID
+    required:
+    - id
+    type: object
+- name: linear_list_comments
+  description: List comments for a specific Linear issue
+  inputSchema:
+    properties:
+      issueId:
+        type: string
+        description: Issue ID
+    required:
+    - issueId
+    type: object
+- name: linear_create_comment
+  description: Create a comment on a specific Linear issue
+  inputSchema:
+    properties:
+      issueId:
+        type: string
+        description: Issue ID
+      body:
+        type: string
+        description: Content as Markdown
+      parentId:
+        type: string
+        description: Parent comment ID (for replies)
+    required:
+    - issueId
+    - body
+    type: object
+- name: linear_list_cycles
+  description: Retrieve cycles for a specific Linear team
+  inputSchema:
+    properties:
+      teamId:
+        type: string
+        description: Team ID
+      type:
+        enum:
+        - current
+        - previous
+        - next
+        type: string
+        description: 'Filter: current, previous, next, or all'
+    required:
+    - teamId
+    type: object
+- name: linear_get_document
+  description: Retrieve a Linear document by ID or slug
+  inputSchema:
+    properties:
+      id:
+        type: string
+        description: Document ID or slug
+    required:
+    - id
+    type: object
+- name: linear_list_documents
+  description: List documents in the user's Linear workspace
+  inputSchema:
+    properties:
+      createdAt:
+        type: string
+        description: 'Created after: ISO-8601 date/duration (e.g., -P1D)'
+      creatorId:
+        type: string
+        description: Filter by creator ID
+      cursor:
+        type: string
+        description: Next page cursor
+      includeArchived:
+        default: false
+        type: boolean
+        description: Include archived items
+      initiativeId:
+        type: string
+        description: Filter by initiative ID
+      limit:
+        default: 50
+        type: number
+        maximum: 250
+        description: Max results (default 50, max 250)
+      orderBy:
+        default: updatedAt
+        enum:
+        - createdAt
+        - updatedAt
+        type: string
+        description: 'Sort: createdAt | updatedAt'
+      projectId:
+        type: string
+        description: Filter by project ID
+      query:
+        type: string
+        description: Search query
+      updatedAt:
+        type: string
+        description: 'Updated after: ISO-8601 date/duration (e.g., -P1D)'
+    type: object
+- name: linear_create_document
+  description: Create a new document in Linear
+  inputSchema:
+    properties:
+      title:
+        type: string
+        description: Document title
+      color:
+        type: string
+        description: Hex color
+      content:
+        type: string
+        description: Content as Markdown
+      icon:
+        type: string
+        description: Icon emoji
+      issue:
+        type: string
+        description: Issue ID or identifier (e.g., LIN-123)
+      project:
+        type: string
+        description: Project name or ID
+    required:
+    - title
+    type: object
+- name: linear_update_document
+  description: Update an existing Linear document
+  inputSchema:
+    properties:
+      id:
+        type: string
+        description: Document ID or slug
+      color:
+        type: string
+        description: Hex color
+      content:
+        type: string
+        description: Content as Markdown
+      icon:
+        type: string
+        description: Icon emoji
+      project:
+        type: string
+        description: Project name or ID
+      title:
+        type: string
+        description: Document title
+    required:
+    - id
+    type: object
+- name: linear_extract_images
+  description: Extract and fetch images from markdown content. Use this to view screenshots,
+    diagrams, or other images embedded in Linear issues, comments, or documents. Pass
+    the markdown content (e.g., issue description) and receive the images as viewable
+    data.
+  inputSchema:
+    properties:
+      markdown:
+        type: string
+        description: Markdown content containing image references (e.g., issue description,
+          comment body)
+    required:
+    - markdown
+    type: object
+- name: linear_get_issue
+  description: Retrieve detailed information about an issue by ID, including attachments
+    and git branch name
+  inputSchema:
+    properties:
+      id:
+        type: string
+        description: Issue ID
+      includeRelations:
+        default: false
+        type: boolean
+        description: Include blocking/related/duplicate relations
+    required:
+    - id
+    type: object
+- name: linear_list_issues
+  description: List issues in the user's Linear workspace. For my issues, use "me"
+    as the assignee.
+  inputSchema:
+    properties:
+      assignee:
+        type: string
+        description: User ID, name, email, or "me"
+      createdAt:
+        type: string
+        description: 'Created after: ISO-8601 date/duration (e.g., -P1D)'
+      cursor:
+        type: string
+        description: Next page cursor
+      cycle:
+        type: string
+        description: Cycle name, number, or ID
+      delegate:
+        type: string
+        description: Agent name or ID
+      includeArchived:
+        default: true
+        type: boolean
+        description: Include archived items
+      label:
+        type: string
+        description: Label name or ID
+      limit:
+        default: 50
+        type: number
+        maximum: 250
+        description: Max results (default 50, max 250)
+      orderBy:
+        default: updatedAt
+        enum:
+        - createdAt
+        - updatedAt
+        type: string
+        description: 'Sort: createdAt | updatedAt'
+      parentId:
+        type: string
+        description: Parent issue ID
+      priority:
+        type: number
+        description: 0=None, 1=Urgent, 2=High, 3=Normal, 4=Low
+      project:
+        type: string
+        description: Project name or ID
+      query:
+        type: string
+        description: Search issue title or description
+      state:
+        type: string
+        description: State type, name, or ID
+      team:
+        type: string
+        description: Team name or ID
+      updatedAt:
+        type: string
+        description: 'Updated after: ISO-8601 date/duration (e.g., -P1D)'
+    type: object
+- name: linear_create_issue
+  description: Create a new Linear issue
+  inputSchema:
+    properties:
+      title:
+        type: string
+        description: Issue title
+      team:
+        type: string
+        description: Team name or ID
+      assignee:
+        type: string
+        description: User ID, name, email, or "me"
+      blockedBy:
+        items:
+          type: string
+        type: array
+        description: Issue IDs/identifiers blocking this
+      blocks:
+        items:
+          type: string
+        type: array
+        description: Issue IDs/identifiers this blocks
+      cycle:
+        type: string
+        description: Cycle name, number, or ID
+      delegate:
+        type: string
+        description: Agent name or ID
+      description:
+        type: string
+        description: Content as Markdown
+      dueDate:
+        type: string
+        description: Due date (ISO format)
+      duplicateOf:
+        type: string
+        description: Duplicate of issue ID/identifier
+      estimate:
+        type: number
+        description: Issue estimate value
+      labels:
+        items:
+          type: string
+        type: array
+        description: Label names or IDs
+      links:
+        items:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+            title:
+              type: string
+              minLength: 1
+          required:
+          - url
+          - title
+        type: array
+        description: Link attachments [{url, title}]
+      milestone:
+        type: string
+        description: Milestone name or ID
+      parentId:
+        type: string
+        description: Parent issue ID
+      priority:
+        type: number
+        description: 0=None, 1=Urgent, 2=High, 3=Normal, 4=Low
+      project:
+        type: string
+        description: Project name or ID
+      relatedTo:
+        items:
+          type: string
+        type: array
+        description: Related issue IDs/identifiers
+      state:
+        type: string
+        description: State type, name, or ID
+    required:
+    - title
+    - team
+    type: object
+- name: linear_update_issue
+  description: Update an existing Linear issue
+  inputSchema:
+    properties:
+      id:
+        type: string
+        description: Issue ID
+      assignee:
+        anyOf:
+        - type: string
+        - type: 'null'
+        description: User ID, name, email, or "me". Null to remove
+      blockedBy:
+        items:
+          type: string
+        type: array
+        description: Issue IDs/identifiers blocking this. Replaces existing; omit
+          to keep unchanged
+      blocks:
+        items:
+          type: string
+        type: array
+        description: Issue IDs/identifiers this blocks. Replaces existing; omit to
+          keep unchanged
+      cycle:
+        type: string
+        description: Cycle name, number, or ID
+      delegate:
+        anyOf:
+        - type: string
+        - type: 'null'
+        description: Agent name or ID. Null to remove
+      description:
+        type: string
+        description: Content as Markdown
+      dueDate:
+        type: string
+        description: Due date (ISO format)
+      duplicateOf:
+        anyOf:
+        - type: string
+        - type: 'null'
+        description: Duplicate of issue ID/identifier. Null to remove
+      estimate:
+        type: number
+        description: Issue estimate value
+      labels:
+        items:
+          type: string
+        type: array
+        description: Label names or IDs
+      links:
+        items:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+            title:
+              type: string
+              minLength: 1
+          required:
+          - url
+          - title
+        type: array
+        description: Link attachments [{url, title}]
+      milestone:
+        type: string
+        description: Milestone name or ID
+      parentId:
+        anyOf:
+        - type: string
+        - type: 'null'
+        description: Parent issue ID. Null to remove
+      priority:
+        type: number
+        description: 0=None, 1=Urgent, 2=High, 3=Normal, 4=Low
+      project:
+        type: string
+        description: Project name or ID
+      relatedTo:
+        items:
+          type: string
+        type: array
+        description: Related issue IDs/identifiers. Replaces existing; omit to keep
+          unchanged
+      state:
+        type: string
+        description: State type, name, or ID
+      team:
+        type: string
+        description: Team name or ID
+      title:
+        type: string
+        description: Issue title
+    required:
+    - id
+    type: object
+- name: linear_list_issue_statuses
+  description: List available issue statuses in a Linear team
+  inputSchema:
+    properties:
+      team:
+        type: string
+        description: Team name or ID
+    required:
+    - team
+    type: object
+- name: linear_get_issue_status
+  description: Retrieve detailed information about an issue status in Linear by name
+    or ID
+  inputSchema:
+    properties:
+      id:
+        type: string
+        description: Status ID
+      name:
+        type: string
+        description: Status name
+      team:
+        type: string
+        description: Team name or ID
+    required:
+    - id
+    - name
+    - team
+    type: object
+- name: linear_list_issue_labels
+  description: List available issue labels in a Linear workspace or team
+  inputSchema:
+    properties:
+      cursor:
+        type: string
+        description: Next page cursor
+      limit:
+        default: 50
+        type: number
+        maximum: 250
+        description: Max results (default 50, max 250)
+      name:
+        type: string
+        description: Filter by name
+      orderBy:
+        default: updatedAt
+        enum:
+        - createdAt
+        - updatedAt
+        type: string
+        description: 'Sort: createdAt | updatedAt'
+      team:
+        type: string
+        description: Team name or ID
+    type: object
+- name: linear_create_issue_label
+  description: Create a new Linear issue label
+  inputSchema:
+    properties:
+      name:
+        type: string
+        description: Label name
+      color:
+        type: string
+        description: Hex color code
+      description:
+        type: string
+        description: Label description
+      isGroup:
+        default: false
+        type: boolean
+        description: Is label group (not directly applicable)
+      parentId:
+        type: string
+        description: Parent label group UUID
+      teamId:
+        type: string
+        description: Team UUID (omit for workspace label)
+    required:
+    - name
+    type: object
+- name: linear_list_projects
+  description: List projects in the user's Linear workspace
+  inputSchema:
+    properties:
+      createdAt:
+        type: string
+        description: 'Created after: ISO-8601 date/duration (e.g., -P1D)'
+      cursor:
+        type: string
+        description: Next page cursor
+      includeArchived:
+        default: false
+        type: boolean
+        description: Include archived items
+      includeMembers:
+        default: false
+        type: boolean
+        description: Include project members
+      includeMilestones:
+        default: false
+        type: boolean
+        description: Include milestones
+      initiative:
+        type: string
+        description: Initiative name or ID
+      limit:
+        default: 50
+        type: number
+        maximum: 250
+        description: Max results (default 50, max 250)
+      member:
+        type: string
+        description: User ID, name, email, or "me"
+      orderBy:
+        default: updatedAt
+        enum:
+        - createdAt
+        - updatedAt
+        type: string
+        description: 'Sort: createdAt | updatedAt'
+      query:
+        type: string
+        description: Search project name
+      state:
+        type: string
+        description: State type, name, or ID
+      team:
+        type: string
+        description: Team name or ID
+      updatedAt:
+        type: string
+        description: 'Updated after: ISO-8601 date/duration (e.g., -P1D)'
+    type: object
+- name: linear_get_project
+  description: Retrieve details of a specific project in Linear
+  inputSchema:
+    properties:
+      query:
+        type: string
+        description: Project ID or name
+      includeMembers:
+        default: false
+        type: boolean
+        description: Include project members
+      includeMilestones:
+        default: false
+        type: boolean
+        description: Include milestones
+      includeResources:
+        default: false
+        type: boolean
+        description: Include resources (documents, links, attachments)
+    required:
+    - query
+    type: object
+- name: linear_create_project
+  description: Create a new project in Linear
+  inputSchema:
+    properties:
+      name:
+        type: string
+        description: Project name
+      team:
+        type: string
+        description: Team name or ID
+      color:
+        type: string
+        description: Hex color
+      description:
+        type: string
+        description: Content as Markdown
+      icon:
+        type: string
+        description: Icon emoji (e.g., :eagle:)
+      initiative:
+        type: string
+        description: Initiative name or ID
+      labels:
+        items:
+          type: string
+        type: array
+        description: Label names or IDs
+      lead:
+        type: string
+        description: User ID, name, email, or "me"
+      priority:
+        type: integer
+        minimum: 0
+        maximum: 4
+        description: 0=None, 1=Urgent, 2=High, 3=Medium, 4=Low
+      startDate:
+        type: string
+        description: Start date (ISO format)
+      state:
+        type: string
+        description: Project state
+      summary:
+        type: string
+        description: Short summary (max 255 chars)
+      targetDate:
+        type: string
+        description: Target date (ISO format)
+    required:
+    - name
+    - team
+    type: object
+- name: linear_update_project
+  description: Update an existing Linear project
+  inputSchema:
+    properties:
+      id:
+        type: string
+        description: Project ID
+      color:
+        type: string
+        description: Hex color
+      description:
+        type: string
+        description: Content as Markdown
+      icon:
+        type: string
+        description: Icon emoji (e.g., :eagle:)
+      initiatives:
+        items:
+          type: string
+        type: array
+        description: Initiative IDs or names
+      labels:
+        items:
+          type: string
+        type: array
+        description: Label names or IDs
+      lead:
+        anyOf:
+        - type: string
+        - type: 'null'
+        description: User ID, name, email, or "me". Null to remove
+      name:
+        type: string
+        description: Project name
+      priority:
+        type: integer
+        minimum: 0
+        maximum: 4
+        description: 0=None, 1=Urgent, 2=High, 3=Medium, 4=Low
+      startDate:
+        type: string
+        description: Start date (ISO format)
+      state:
+        type: string
+        description: Project state
+      summary:
+        type: string
+        description: Short summary (max 255 chars)
+      targetDate:
+        type: string
+        description: Target date (ISO format)
+    required:
+    - id
+    type: object
+- name: linear_list_project_labels
+  description: List available project labels in the Linear workspace
+  inputSchema:
+    properties:
+      cursor:
+        type: string
+        description: Next page cursor
+      limit:
+        default: 50
+        type: number
+        maximum: 250
+        description: Max results (default 50, max 250)
+      name:
+        type: string
+        description: Filter by name
+      orderBy:
+        default: updatedAt
+        enum:
+        - createdAt
+        - updatedAt
+        type: string
+        description: 'Sort: createdAt | updatedAt'
+    type: object
+- name: linear_list_milestones
+  description: List all milestones in a Linear project
+  inputSchema:
+    properties:
+      project:
+        type: string
+        description: Project name or ID
+    required:
+    - project
+    type: object
+- name: linear_get_milestone
+  description: Retrieve details of a specific milestone by ID or name
+  inputSchema:
+    properties:
+      project:
+        type: string
+        description: Project name or ID
+      query:
+        type: string
+        description: Milestone name or ID
+    required:
+    - project
+    - query
+    type: object
+- name: linear_create_milestone
+  description: Create a new milestone in a Linear project
+  inputSchema:
+    properties:
+      project:
+        type: string
+        description: Project name or ID
+      name:
+        type: string
+        description: Milestone name
+      description:
+        type: string
+        description: Milestone description
+      targetDate:
+        type: string
+        description: Target completion date (ISO format)
+    required:
+    - project
+    - name
+    type: object
+- name: linear_update_milestone
+  description: Update an existing milestone in a Linear project
+  inputSchema:
+    properties:
+      project:
+        type: string
+        description: Project name or ID
+      id:
+        type: string
+        description: Milestone name or ID
+      description:
+        type: string
+        description: Milestone description
+      name:
+        type: string
+        description: Milestone name
+      targetDate:
+        anyOf:
+        - type: string
+        - type: 'null'
+        description: Target completion date (ISO format, null to remove)
+    required:
+    - project
+    - id
+    type: object
+- name: linear_list_teams
+  description: List teams in the user's Linear workspace
+  inputSchema:
+    properties:
+      createdAt:
+        type: string
+        description: 'Created after: ISO-8601 date/duration (e.g., -P1D)'
+      cursor:
+        type: string
+        description: Next page cursor
+      includeArchived:
+        default: false
+        type: boolean
+        description: Include archived items
+      limit:
+        default: 50
+        type: number
+        maximum: 250
+        description: Max results (default 50, max 250)
+      orderBy:
+        default: updatedAt
+        enum:
+        - createdAt
+        - updatedAt
+        type: string
+        description: 'Sort: createdAt | updatedAt'
+      query:
+        type: string
+        description: Search query
+      updatedAt:
+        type: string
+        description: 'Updated after: ISO-8601 date/duration (e.g., -P1D)'
+    type: object
+- name: linear_get_team
+  description: Retrieve details of a specific Linear team
+  inputSchema:
+    properties:
+      query:
+        type: string
+        description: Team UUID, key, or name
+    required:
+    - query
+    type: object
+- name: linear_list_users
+  description: Retrieve users in the Linear workspace
+  inputSchema:
+    properties:
+      cursor:
+        type: string
+        description: Next page cursor
+      limit:
+        default: 50
+        type: number
+        maximum: 250
+        description: Max results (default 50, max 250)
+      orderBy:
+        default: updatedAt
+        enum:
+        - createdAt
+        - updatedAt
+        type: string
+        description: 'Sort: createdAt | updatedAt'
+      query:
+        type: string
+        description: Filter by name or email
+      team:
+        type: string
+        description: Team name or ID
+    type: object
+- name: linear_get_user
+  description: Retrieve details of a specific Linear user
+  inputSchema:
+    properties:
+      query:
+        type: string
+        description: User ID, name, email, or "me"
+    required:
+    - query
+    type: object
+- name: linear_search_documentation
+  description: Search Linear's documentation to learn about features and usage
+  inputSchema:
+    properties:
+      query:
+        type: string
+        description: Search query
+      page:
+        default: 0
+        type: number
+        description: Page number
+    required:
+    - query
+    type: object
+- name: linear_list_initiatives
+  description: List initiatives in the user's Linear workspace
+  inputSchema:
+    properties:
+      createdAt:
+        type: string
+        description: 'Created after: ISO-8601 date/duration (e.g., -P1D)'
+      cursor:
+        type: string
+        description: Next page cursor
+      includeArchived:
+        default: false
+        type: boolean
+        description: Include archived items
+      includeProjects:
+        default: false
+        type: boolean
+        description: Include projects
+      includeSubInitiatives:
+        default: false
+        type: boolean
+        description: Include sub-initiatives
+      limit:
+        default: 50
+        type: number
+        maximum: 250
+        description: Max results (default 50, max 250)
+      orderBy:
+        default: updatedAt
+        enum:
+        - createdAt
+        - updatedAt
+        type: string
+        description: 'Sort: createdAt | updatedAt'
+      owner:
+        type: string
+        description: User ID, name, email, or "me"
+      parentInitiative:
+        type: string
+        description: Parent initiative name or ID
+      query:
+        type: string
+        description: Search initiative name
+      status:
+        type: string
+        description: Status of the initiative
+      updatedAt:
+        type: string
+        description: 'Updated after: ISO-8601 date/duration (e.g., -P1D)'
+    type: object
+- name: linear_get_initiative
+  description: Retrieve detailed information about a specific initiative in Linear
+  inputSchema:
+    properties:
+      query:
+        type: string
+        description: Initiative ID or name
+      includeProjects:
+        default: false
+        type: boolean
+        description: Include projects
+      includeSubInitiatives:
+        default: false
+        type: boolean
+        description: Include sub-initiatives
+    required:
+    - query
+    type: object
+- name: linear_create_initiative
+  description: Create a new initiative in Linear
+  inputSchema:
+    properties:
+      name:
+        type: string
+        description: Initiative name
+      color:
+        type: string
+        description: Hex color
+      description:
+        type: string
+        description: Content as Markdown
+      icon:
+        type: string
+        description: Icon emoji or name
+      owner:
+        type: string
+        description: User ID, name, email, or "me"
+      status:
+        type: string
+        description: Initiative status (Planned, Active, Completed)
+      summary:
+        type: string
+        description: Short summary (max 255 chars)
+      targetDate:
+        type: string
+        description: Target date (ISO format)
+    required:
+    - name
+    type: object
+- name: linear_update_initiative
+  description: Update an existing Linear initiative
+  inputSchema:
+    properties:
+      id:
+        type: string
+        description: Initiative ID
+      color:
+        type: string
+        description: Hex color
+      description:
+        type: string
+        description: Content as Markdown
+      icon:
+        type: string
+        description: Icon emoji or name
+      name:
+        type: string
+        description: Initiative name
+      owner:
+        anyOf:
+        - type: string
+        - type: 'null'
+        description: User ID, name, email, or "me". Null to remove
+      parentInitiative:
+        anyOf:
+        - type: string
+        - type: 'null'
+        description: Parent initiative name or ID. Null to remove
+      status:
+        type: string
+        description: Initiative status (Planned, Active, Completed)
+      summary:
+        type: string
+        description: Short summary (max 255 chars)
+      targetDate:
+        type: string
+        description: Target date (ISO format)
+    required:
+    - id
+    type: object
+- name: linear_get_status_updates
+  description: List or get project/initiative status updates. Pass `id` to get a specific
+    update, or filter to list.
+  inputSchema:
+    properties:
+      type:
+        enum:
+        - project
+        - initiative
+        type: string
+        description: Type of status update
+      createdAt:
+        type: string
+        description: 'Created after: ISO-8601 date/duration (e.g., -P1D)'
+      cursor:
+        type: string
+        description: Next page cursor
+      id:
+        type: string
+        description: Status update ID - if provided, returns this specific update
+      includeArchived:
+        default: false
+        type: boolean
+        description: Include archived items
+      initiative:
+        type: string
+        description: Initiative name or ID
+      limit:
+        default: 50
+        type: number
+        maximum: 250
+        description: Max results (default 50, max 250)
+      orderBy:
+        default: updatedAt
+        enum:
+        - createdAt
+        - updatedAt
+        type: string
+        description: 'Sort: createdAt | updatedAt'
+      project:
+        type: string
+        description: Project name or ID
+      updatedAt:
+        type: string
+        description: 'Updated after: ISO-8601 date/duration (e.g., -P1D)'
+      user:
+        type: string
+        description: User ID, name, email, or "me"
+    required:
+    - type
+    type: object
+- name: linear_save_status_update
+  description: Create or update a project/initiative status update. Omit `id` to create,
+    provide `id` to update.
+  inputSchema:
+    properties:
+      type:
+        enum:
+        - project
+        - initiative
+        type: string
+        description: Type of status update
+      body:
+        type: string
+        description: Content as Markdown
+      health:
+        enum:
+        - onTrack
+        - atRisk
+        - offTrack
+        type: string
+        description: onTrack | atRisk | offTrack
+      id:
+        type: string
+        description: Status update ID - if provided, updates this existing update
+      initiative:
+        type: string
+        description: Initiative name or ID
+      isDiffHidden:
+        type: boolean
+        description: Hide diff with previous update
+      project:
+        type: string
+        description: Project name or ID
+    required:
+    - type
+    type: object
+- name: linear_delete_status_update
+  description: Delete (archive) a project or initiative status update.
+  inputSchema:
+    properties:
+      type:
+        enum:
+        - project
+        - initiative
+        type: string
+        description: Type of status update
+      id:
+        type: string
+        description: Status update ID
+    required:
+    - type
+    - id
+    type: object
+prompts:
+- name: orders-incident-hud:orders_incident
+  description: '[Setup] Scenario: orders_incident'
+  arguments: []
+  meta:
+    code: "@env.scenario(\"orders_incident\")\nasync def orders_incident():\n    answer\
+      \ = yield await setup()\n    yield await grade(answer)\n"
+    fastmcp:
+      tags: []
+resources:
+- uri: orders-incident-hud:orders_incident
+  name: orders_incident
+  description: '[Evaluate] Scenario: orders_incident'
+  mime_type: application/json
+  meta:
+    code: "@env.scenario(\"orders_incident\")\nasync def orders_incident():\n    answer\
+      \ = yield await setup()\n    yield await grade(answer)\n"
+    fastmcp:
+      tags: []
+scenarios:
+- id: orders-incident-hud:orders_incident
+  env: orders-incident-hud
+  name: orders_incident
+  setup_description: '[Setup] Scenario: orders_incident'
+  arguments: []
+  has_setup_prompt: true
+  has_evaluate_resource: true
+  code: "@env.scenario(\"orders_incident\")\nasync def orders_incident():\n    answer\
+    \ = yield await setup()\n    yield await grade(answer)\n"
+  evaluate_description: '[Evaluate] Scenario: orders_incident'

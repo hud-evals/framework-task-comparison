@@ -15,6 +15,13 @@ from .data import MockLinearData, _paginate
 
 PRIORITY_NAMES = {0: "None", 1: "Urgent", 2: "High", 3: "Medium", 4: "Low"}
 
+
+def _blank_to_none(value: str | None) -> str | None:
+    if value is None:
+        return None
+    value = value.strip()
+    return value or None
+
 # ---------------------------------------------------------------------------
 # Official Linear MCP tool descriptions (from https://mcp.linear.app/mcp)
 # ---------------------------------------------------------------------------
@@ -1054,6 +1061,14 @@ async def create_linear_server(data: MockLinearData) -> FastMCP:
         team: str | None = None,
         title: str | None = None,
     ) -> str:
+        assignee = _blank_to_none(assignee)
+        cycle = _blank_to_none(cycle)
+        delegate = _blank_to_none(delegate)
+        milestone = _blank_to_none(milestone)
+        project = _blank_to_none(project)
+        state = _blank_to_none(state)
+        team = _blank_to_none(team)
+
         existing = data.get_issue(id)
         if not existing:
             raise ValueError("Entity not found: Issue - Could not find referenced Issue.")

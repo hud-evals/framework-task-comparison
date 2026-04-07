@@ -23,3 +23,9 @@ From `hud/`:
 uv sync
 uv run hud eval tasks.py claude --model claude-sonnet-4-5
 ```
+
+Build the environment image:
+
+```bash
+uv run hud build .
+```

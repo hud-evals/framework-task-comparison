@@ -1,0 +1,39 @@
+# syntax=docker/dockerfile:1
+
+FROM python:3.12-slim
+
+RUN apt-get update -y \
+  && apt-get install -y --no-install-recommends \
+  bash \
+  ca-certificates \
+  git \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -u 1000 ubuntu
+RUN pip install uv --break-system-packages
+
+WORKDIR /mcp_server
+
+COPY ./pyproject.toml /mcp_server/pyproject.toml
+COPY ./uv.lock /mcp_server/uv.lock
+COPY ./README.md /mcp_server/README.md
+COPY ./linear_mcp /mcp_server/linear_mcp
+
+RUN uv venv \
+  && . .venv/bin/activate \
+  && uv sync --no-install-project \
+  && uv pip install -e .
+
+ENV PATH=/mcp_server/.venv/bin:/home/ubuntu/.local/bin:$PATH
+ENV PYTHONPATH=/mcp_server/.venv/lib/python3.12/site-packages:/mcp_server
+
+COPY ./env.py /mcp_server/env.py
+COPY ./tasks.py /mcp_server/tasks.py
+COPY ./linear_data /mcp_server/linear_data
+COPY ./source /mcp_server/source
+
+RUN chmod 700 /mcp_server/env.py \
+  && chmod -R 700 /mcp_server/source/tests
+
+ENV _HUD_DEV_CHILD=1
+CMD ["hud", "dev", "env:env", "--stdio"]
