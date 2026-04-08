@@ -9,7 +9,7 @@ from pathlib import Path
 
 from fastmcp import FastMCP
 
-STATE_DIR = Path("/app/linear_state")
+STATE_DIR = Path("/app/linear_data")
 ISSUES_PATH = STATE_DIR / "issues.json"
 WORKFLOW_STATES_PATH = STATE_DIR / "workflow_states.json"
 COMMENTS_PATH = STATE_DIR / "comments.json"
@@ -53,7 +53,7 @@ def _done_state() -> dict:
 
 @mcp.tool()
 def get_linear_issue(issue_identifier: str = "ENG-450") -> str:
-    """Return the seeded Linear issue details and any created comments."""
+    """Return the seeded Linear issue details plus any created comments."""
     _issues, issue = _load_issue(issue_identifier)
     payload = {**issue, "created_comments": _load_json(COMMENTS_PATH)}
     return json.dumps(payload, indent=2)
@@ -61,7 +61,7 @@ def get_linear_issue(issue_identifier: str = "ENG-450") -> str:
 
 @mcp.tool()
 def leave_linear_comment(body: str, issue_identifier: str = "ENG-450") -> str:
-    """Append a comment to the seeded Linear issue."""
+    """Leave a comment on the seeded Linear issue."""
     issues, issue = _load_issue(issue_identifier)
     comments = _load_json(COMMENTS_PATH)
     comment = {

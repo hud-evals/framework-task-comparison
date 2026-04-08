@@ -266,7 +266,7 @@ class OrdersIncidentVerifiersEnv(vf.StatefulToolEnv):
         return "\n\n".join(output)
 
     async def leave_linear_comment(self, body: str, state: vf.State | None = None) -> str:
-        """Add a comment to ENG-450."""
+        """Leave a comment on the seeded Linear issue."""
         assert state is not None
         comment = {
             "id": str(uuid.uuid4()),
@@ -279,7 +279,7 @@ class OrdersIncidentVerifiersEnv(vf.StatefulToolEnv):
         return json.dumps(comment, indent=2)
 
     async def mark_linear_done(self, state: vf.State | None = None) -> str:
-        """Mark ENG-450 as Done."""
+        """Mark the seeded Linear issue as Done."""
         assert state is not None
         completed_state = deepcopy(
             next(

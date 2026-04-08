@@ -11,8 +11,8 @@ from pathlib import Path
 APP_DIR = Path("/app")
 BARE_REPO = APP_DIR / "orders-api.git"
 INITIAL_REFS_PATH = APP_DIR / "initial_refs.json"
-LINEAR_ISSUES_PATH = APP_DIR / "linear_state" / "issues.json"
-COMMENTS_PATH = APP_DIR / "linear_state" / "comments.json"
+LINEAR_ISSUES_PATH = APP_DIR / "linear_data" / "issues.json"
+COMMENTS_PATH = APP_DIR / "linear_data" / "comments.json"
 GRADING_DIR = Path("/tmp/grading/orders_api")
 HIDDEN_TEST = Path("/tests/test_order_pricing.py")
 REWARD_PATH = Path("/logs/verifier/reward.txt")

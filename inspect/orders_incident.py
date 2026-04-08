@@ -25,9 +25,9 @@ BARE_REPO = "workspace/orders-api.git"
 GRADING_DIR = "workspace/grading/orders_api"
 DEFAULT_BRANCH = "order_bug_baseline"
 
-PROMPT = (
+PROMPT_TEMPLATE = (
     "You have been assigned Linear issue ENG-450. Start in Linear and read the ticket details.\n\n"
-    "The orders API source code is available locally at workspace/orders_api inside the sandbox. "
+    "The orders API source code is available locally at {workspace}. "
     "It is a Python FastAPI application.\n\n"
     "This looks like a production regression from last night's deploy. Customers are reporting "
     "bad checkout totals, but the ticket has the best context on what is and is not broken. "
@@ -38,12 +38,7 @@ PROMPT = (
     "3. Leave a comment on the Linear issue summarizing the diagnosis and fix\n"
     "4. Mark the Linear issue as Done\n"
 )
-
-SYSTEM_PROMPT = (
-    "You are fixing a local Python service in a sandbox. Use the Linear tools for issue workflow, "
-    "and use the shell and editor tools for code investigation, editing, tests, commits, and push. "
-    "Only submit after the branch is pushed and the Linear issue has been updated."
-)
+PROMPT = PROMPT_TEMPLATE.format(workspace=WORKSPACE)
 
 VIEWER = {
     "id": "user-001",
@@ -302,7 +297,6 @@ def orders_incident():
         dataset=[Sample(input=PROMPT)],
         setup=bootstrap(),
         solver=react(
-            prompt=SYSTEM_PROMPT,
             tools=[
                 bash_session(timeout=240),
                 text_editor(timeout=180),

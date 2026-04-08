@@ -19,7 +19,8 @@ RUN python3 -m pip install --break-system-packages "fastmcp>=2,<3" pytest
 
 COPY orders_api /app/orders_api
 COPY linear_mcp /app/linear_mcp
-COPY linear_state /app/linear_state
+COPY linear_data /app/linear_data
+RUN echo '[]' > /app/linear_data/comments.json
 
 RUN set -eux; \
     cd /app/orders_api; \
